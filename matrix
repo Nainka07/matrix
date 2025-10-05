@@ -1,0 +1,77 @@
+import numpy as np
+
+# 1️⃣ Matrix Input Function
+def input_matrix():
+    n = int(input("Enter the size of the matrix (n × n): "))
+    matrix = []
+    print(f"Enter the elements of the {n}x{n} matrix row by row:")
+    for i in range(n):
+        row = list(map(float, input(f"Row {i+1}: ").split()))
+        if len(row) != n:
+            print("Error: Each row must have", n, "elements.")
+            return None
+        matrix.append(row)
+    return np.array(matrix)
+
+# 2️⃣ Inverse Using Determinant Method
+def inverse_using_determinant(matrix):
+    det = np.linalg.det(matrix)
+    if det == 0:
+        print(" The matrix has no inverse (determinant = 0).")
+        return None
+    # Adjoint = inverse * determinant
+    adjoint = np.linalg.inv(matrix) * det  
+    inverse = np.linalg.inv(matrix)
+    return inverse
+
+# 3️⃣ Inverse Using Gauss-Jordan Elimination
+def inverse_using_gauss_jordan(matrix):
+    n = len(matrix)
+    aug = np.hstack((matrix, np.identity(n)))  # [A | I]
+    for i in range(n):
+        if aug[i][i] == 0:
+            for j in range(i+1, n):
+                if aug[j][i] != 0:
+                    aug[[i, j]] = aug[[j, i]]
+                    break
+            else:
+                print(" The matrix has no inverse (singular matrix).")
+                return None
+        aug[i] = aug[i] / aug[i][i]  # Pivot = 1
+        for j in range(n):
+            if i != j:
+                aug[j] = aug[j] - aug[i] * aug[j][i]
+    inverse = aug[:, n:]
+    return inverse
+
+# 4️⃣ Output and Comparison
+def compare_inverses(inv_det, inv_gauss):
+    if inv_det is None or inv_gauss is None:
+        print("️ Comparison not possible — at least one method failed.")
+        return
+    print("\n Inverse using Determinant method:\n", inv_det)
+    print("\n Inverse using Gauss-Jordan method:\n", inv_gauss)
+    if np.allclose(inv_det, inv_gauss):
+        print("\n Both methods give the same result — correct implementation!")
+    else:
+        print("\n Results differ — check calculations!")
+
+# 🔹 Main Function
+def main():
+    print("=== MATRIX INVERSE PROGRAM ===")
+    A = input_matrix()
+    if A is None:
+        return
+    
+    print("\nOriginal Matrix:\n", A)
+    
+    print("\n--- Using Determinant Method ---")
+    inv_det = inverse_using_determinant(A)
+    
+    print("\n--- Using Gauss-Jordan Elimination ---")
+    inv_gauss = inverse_using_gauss_jordan(A)
+    
+    compare_inverses(inv_det, inv_gauss)
+
+if __name__ == "__main__":
+    main()
